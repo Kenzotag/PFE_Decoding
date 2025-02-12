@@ -4,3 +4,6 @@ Keras
 NumPy
 Matplotlib
 Scikit-learn
+pyQt6
+css
+c++
