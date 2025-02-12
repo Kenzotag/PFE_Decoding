@@ -6,3 +6,7 @@ Objectifs du projet:
 -Mettre en place un modèle de Deep Learning pour le décodage automatique.
 -Comparer les performances du modèle d'IA avec des algorithmes classiques (LDPC, Hamming, Turbo).
 -Implémenter et tester des solutions dans un environnement simulé de transmission de données.
+
+Résultats attendus
+-Précision de décodage améliorée par rapport aux méthodes classiques.
+-Évaluation des performances en termes de taux d'erreur de bit (BER) et de complexité computationnelle.
