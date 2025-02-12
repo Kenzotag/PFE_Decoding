@@ -1,3 +1,4 @@
+
 Description du projet:
 -Ce projet porte sur le décodage canal automatique des communications en utilisant des techniques d'Intelligence Artificielle (IA) et de Deep Learning (DL). L'objectif  principal est de développer un système capable de décoder des messages transmis via un canal de communication bruité, tout en utilisant des algorithmes de correction  d'erreur classiques (comme LDPC, Turbo Codes) combinés à des modèles d'IA pour améliorer la performance du décodage.
 
