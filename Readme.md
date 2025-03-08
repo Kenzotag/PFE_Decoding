@@ -43,9 +43,3 @@ Créer un système capable de **décoder des messages transmis via un canal de c
 | Matplotlib | Visualisation des données |
 | Scikit-learn | Algorithmes ML |
 
----
-
-## 🤝 <span style="color: #27AE60;"> Contribuer </span>  
-🚀 Toute contribution est la bienvenue ! Pour participer :  
-1. **Fork** le repo 🚀  
-2. **Clone**
