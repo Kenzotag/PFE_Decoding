@@ -1,0 +1,126 @@
+import numpy as np
+import random
+import string
+import pickle  # pour sauvegarder le jeu de données (optionnel)
+
+# -----------------------------
+# Fonctions de génération de données
+# -----------------------------
+
+def generate_random_text(length=10):
+    """
+    Génère une chaîne de caractères aléatoire de longueur 'length'.
+    On peut ici utiliser uniquement des lettres majuscules/minuscules,
+    ou étendre avec des espaces/punctuation selon besoin.
+    """
+    letters = string.ascii_letters  # par exemple, uniquement lettres
+    return ''.join(random.choices(letters, k=length))
+
+def text_to_binary(text):
+    """
+    Convertit un texte en une séquence binaire.
+    Chaque caractère est encodé en ASCII sur 8 bits.
+    Retourne une liste d'entiers (0 ou 1).
+    """
+    binary_seq = []
+    for char in text:
+        # Format en binaire sur 8 bits
+        bin_char = format(ord(char), '08b')
+        binary_seq.extend([int(bit) for bit in bin_char])
+    return np.array(binary_seq)  # converti en tableau numpy
+
+def ldpc_encode(binary_seq):
+    """
+    Simulation du codage canal LDPC.
+    Pour cette version, on suppose que le codage LDPC est identique
+    à la conversion binaire du texte. Tu pourras remplacer cette fonction
+    par une implémentation réelle ou simulée de LDPC.
+    """
+    # Par exemple, ici on peut ajouter des bits de parité (optionnel)
+    # Pour simplifier, on retourne l'entrée telle quelle.
+    return binary_seq.copy()
+
+def bpsk_modulate(binary_seq):
+    """
+    Mappe les bits en symboles BPSK :
+      0 -> -1
+      1 -> +1
+    Retourne un tableau de float.
+    """
+    return np.where(binary_seq == 0, -1.0, 1.0)
+
+def add_awgn_noise(signal, snr_db):
+    """
+    Ajoute un bruit gaussien (AWGN) au signal modulé.
+    Pour BPSK, la puissance du signal est 1.
+    snr_db : rapport signal/bruit en dB.
+    La variance du bruit = 1 / snr_lin.
+    """
+    snr_linear = 10 ** (snr_db / 10.0)
+    noise_std = np.sqrt(1.0 / snr_linear)
+    noise = np.random.normal(0, noise_std, size=signal.shape)
+    return signal + noise
+
+def generate_example(snr_db, text_length=10):
+    """
+    Génère un exemple complet.
+      - message : texte original
+      - label   : trame binaire correcte (issu du codage source, LDPC "simulé")
+      - feature : trame binaire codée et bruitée (après modulation et AWGN)
+    """
+    # 1. Générer un texte aléatoire
+    text = generate_random_text(length=text_length)
+    
+    # 2. Convertir le texte en trame binaire (8 bits par caractère)
+    binary_source = text_to_binary(text)
+    
+    # 3. Appliquer le codage canal (LDPC) – ici simulé par identité
+    binary_encoded = ldpc_encode(binary_source)
+    
+    # 4. Moduler la trame en BPSK : 0-> -1, 1-> +1
+    modulated_signal = bpsk_modulate(binary_encoded)
+    
+    # 5. Ajouter le bruit gaussien (AWGN) selon le niveau de SNR
+    noisy_signal = add_awgn_noise(modulated_signal, snr_db)
+    
+    return {
+        'text': text,                    # Message original (pour illustration)
+        'binary_label': binary_source,   # Trame binaire correcte (label)
+        'noisy_feature': noisy_signal    # Trame binaire codée et bruitée (feature)
+    }
+
+# -----------------------------
+# Génération d'un grand jeu de données
+# -----------------------------
+def generate_dataset(num_examples=10000, snr_db_list=[0, 5, 10], text_length=10):
+    """
+    Génère un jeu de données avec 'num_examples' exemples.
+    Pour chaque exemple, le SNR est choisi aléatoirement dans snr_db_list.
+    Retourne une liste de dictionnaires contenant les trois champs.
+    """
+    dataset = []
+    for i in range(num_examples):
+        # Choisir un SNR aléatoire parmi la liste
+        snr_db = random.choice(snr_db_list)
+        example = generate_example(snr_db, text_length=text_length)
+        # Tu peux éventuellement stocker le SNR utilisé dans l'exemple
+        example['snr_db'] = snr_db
+        dataset.append(example)
+        if (i+1) % 1000 == 0:
+            print(f"Exemples générés : {i+1}")
+    return dataset
+
+if __name__ == '__main__':
+    # Paramètres
+    NUM_EXAMPLES = 10000  # à ajuster pour un grand jeu de données
+    SNR_DB_LIST = [0, 5, 10, 15]  # différents niveaux de SNR
+    TEXT_LENGTH = 12  # longueur du texte en nombre de caractères
+
+    # Générer le dataset
+    dataset = generate_dataset(num_examples=NUM_EXAMPLES, snr_db_list=SNR_DB_LIST, text_length=TEXT_LENGTH)
+
+    # Sauvegarder le dataset dans un fichier (par exemple, en pickle)
+    with open("dataset_ldpc.pkl", "wb") as f:
+        pickle.dump(dataset, f)
+    
+    print("Jeu de données généré et sauvegardé dans 'dataset_ldpc.pkl'")
